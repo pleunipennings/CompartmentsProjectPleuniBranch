@@ -36,6 +36,7 @@ float comp[5][4]={0};  // number of strains in each compartment. i:0-3 strains, 
 double mutrate[4][4]={0}; // probability of mutation from strain of type i to strain of type j
 double t; //PP I guess this is time. 
 double mmt; // counts how many migration events of a mutant from the sanctuary to the SDC have occurred 
+unsigned long int seed; //the seed
 
 /*Random number generation*/
 gsl_rng * r; /*global random number generator*/
@@ -46,7 +47,6 @@ int main () {
 	T = gsl_rng_default; // use the default random number generator algorithm (Mersenne twister)
 	gsl_rng_env_setup(); 
 	r = gsl_rng_alloc (T); // allocate memory for generator of type T
-	gsl_rng_set(r, time(NULL)); // Use clock to set the seed of the random number generator
 
 	/*Variable definition*/
 	int rep,nr; // nr = Number of replicates, rep is current replicate	
@@ -55,7 +55,11 @@ int main () {
 	/*Read parameters*/
 	parameters=fopen("parameters.txt", "rt"); // "rt" = Open a text file for reading. (The file must exist.)
 
-	fscanf(parameters,"R:%f c1:%f c2:%f s:%f dy:%f dx:%f m:%f uf1:%f ub1:%f uf2:%f ub2:%f x0:%f x1:%f x2:%f x3:%f nr:%d tcf:%d", &R, &c1, &c2, &s, &dy, &dx, &m, &uf1, &ub1, &uf2, &ub2, &comp[4][0], &comp[4][1], &comp[4][2], &comp[4][3], &nr, &tcf);
+	fscanf(parameters,"R:%f c1:%f c2:%f s:%f dy:%f dx:%f m:%f uf1:%f ub1:%f uf2:%f ub2:%f x0:%f x1:%f x2:%f x3:%f nr:%d tcf:%d seed:%lu", &R, &c1, &c2, &s, &dy, &dx, &m, &uf1, &ub1, &uf2, &ub2, &comp[4][0], &comp[4][1], &comp[4][2], &comp[4][3], &nr, &tcf, &seed);
+	
+	//	gsl_rng_set(r, time(NULL)); // Use clock to set the seed of the random number generator
+	gsl_rng_set(r, seed); // Use clock to set the seed of the random number generator
+
 		
 	/*Calculate migration rates*/
 	migration_rates();
@@ -273,7 +277,7 @@ struct outsim one_run(){
 	
 	/*START SIMULATION*/
 	
-	while (t<100000){ // !! PP run for fixed amount of time, in stead of until invasion. 
+	while (t<10000){ // !! PP run for fixed amount of time, in stead of until invasion. 
 	//while (comp[1][1]<tcf){ //as long as the fourth compartment has fewer individuals than tcf (the threshhold). 
 			/*
 		printf("comp\n");

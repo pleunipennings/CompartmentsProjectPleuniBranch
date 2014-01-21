@@ -1,13 +1,18 @@
+#compile and move program
+system("./make")
+system("mv main ../main")
+
 #set parameters
 R = 4
 c1 = 0.99; c2 = 0.99; s=0.05; dy=1; dx=0.1; m="1E-03";
-uf1 = "1E-05"; ub1 = "0"; uf2 = "0" ; ub2 = "0";
-x0 = "1E+04"; x1 = "1E+06"; x2 = 0; x3 = 0; #the number of uninfected cells in the compartments
+uf1 = "1E-04"; ub1 = "0"; uf2 = "0" ; ub2 = "0";
+x0 = "1E+03"; x1 = "1E+06"; x2 = 0; x3 = 0; #the number of uninfected cells in the compartments
+seed = 1
 nr = 1; #number of runs
 tcf = 10; #threshold of when to stop simulations
 
 #create parameter file
-filetowrite="parameters.txt"
+filetowrite="../parameters.txt"
 write(paste("R:",R),file=filetowrite)
 write(paste("c1:",c1),file=filetowrite,append=TRUE)
 write(paste("c2:",c2),file=filetowrite,append=TRUE)
@@ -25,23 +30,24 @@ write(paste("x2:",x2),file=filetowrite,append=TRUE)
 write(paste("x3:",x3),file=filetowrite,append=TRUE)
 write(paste("nr:",nr),file=filetowrite,append=TRUE)
 write(paste("tcf:",tcf),file=filetowrite,append=TRUE)
+write(paste("seed:",seed),file=filetowrite,append=TRUE)
 
 #remove old output files
 if (TRUE){
-if (file.exists("firstfilled.txt")) system ("rm firstfilled.txt")
-if (file.exists("texit.txt")) system ("rm texit.txt")
-if (file.exists("path_sucmut.txt")) system ("rm path_sucmut.txt")
-if (file.exists("tfailure.txt")) system ("rm tfailure.txt")
-if (file.exists("vload.txt")) system ("rm vload.txt")
-if (file.exists("path_sdc.txt")) system ("rm path_sdc.txt")
-if (file.exists("mmt.txt")) system ("rm mmt.txt")
+if (file.exists("../firstfilled.txt")) system ("rm ../firstfilled.txt")
+if (file.exists("../texit.txt")) system ("rm ../texit.txt")
+if (file.exists("../path_sucmut.txt")) system ("rm ../path_sucmut.txt")
+if (file.exists("../tfailure.txt")) system ("rm ../tfailure.txt")
+if (file.exists("../vload.txt")) system ("rm ../vload.txt")
+if (file.exists("../path_sdc.txt")) system ("rm ../path_sdc.txt")
+if (file.exists("../mmt.txt")) system ("rm ../mmt.txt")
+if (file.exists("../output.txt")) system ("rm ../output.txt")
 }
 	
 #run simulation
-#system("rm output.txt")
 
-for (i in 1:20){
-print(system.time(system ("./main >> output.txt")))
+for (i in 1:2){
+print(system.time(system ("../main >> ../output.txt")))
 
 #read output files
 #scan("tfailure.txt")->FailureTimes
@@ -60,7 +66,7 @@ curve(dexp(x, rate = 0.001095), add = TRUE, col = "green", lwd = 2)
 dev.off()
 }
 
-	scan("output.txt")->x
+	scan("../output.txt")->x
 	hist(x)
 
 #read.table("output.txt",sep="\t")->x
