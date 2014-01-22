@@ -37,6 +37,7 @@ double mutrate[4][4]={0}; // probability of mutation from strain of type i to st
 double t; //PP I guess this is time. 
 double mmt; // counts how many migration events of a mutant from the sanctuary to the SDC have occurred 
 unsigned long int seed; //the seed
+int outputmutantinfo=1; //if 1 output info on mutants for debugging
 
 /*Random number generation*/
 gsl_rng * r; /*global random number generator*/
@@ -259,11 +260,13 @@ struct outsim one_run(){
 	comp[1][0] = gsl_ran_poisson (r, comp[0][0]*uf1/s);
 //	printf("%lf ", comp[1][0]);
 //	printf("\n");
-	
-//	printf("%d\t%d\t%d\t",i,j,k);
-//	printf("%f\t",t);
-//	printf("%f\t",comp[0][0]); // output num wt
-//	printf("%f\n",comp[1][0]);
+
+	if (outputmutantinfo==1){
+	printf("%d\t%d\t%d\t",i,j,k);
+	printf("%f\t",t);
+	printf("%f\t",comp[0][0]); // output num wt
+	printf("%f\n",comp[1][0]);
+	}
 	
 	Ntotal=comp[0][0]+comp[1][0];	//PP Ntotal is the total pop size	
 
@@ -295,11 +298,11 @@ struct outsim one_run(){
 		j=nev_rec.j; //PP I reverted i and j 
 		i=nev_rec.i; 
 		k=nev_rec.k;
-		if (i==1 & j==0){ //if something happens to a mutant
-//			printf("%d\t%d\t%d\t",i,j,k);
-//			printf("%f\t",t);
-//			printf("%f\t",comp[0][0]); // output num wt
-//			printf("%f\n",comp[1][0]);
+		if (i==1 & j==0 & outputmutantinfo==1){ //if something happens to a mutant
+			printf("%d\t%d\t%d\t",i,j,k);
+			printf("%f\t",t);
+			printf("%f\t",comp[0][0]); // output num wt
+			printf("%f\n",comp[1][0]);
 		}
 //			printf(" cc %f %d %d %d\n",t, i,j,k);
 		
@@ -311,11 +314,11 @@ struct outsim one_run(){
 			for (l=0; l<4; l++) { //loops over all strains that it can mutate to. 
 				sumc+=mutrate[i][l]; 
 				if (random_rep<sumc) { // PP the mutation rates add up to 1, so random_rep doesn't need to be multiplied with total mut rate. 
-					if (j==0 & l==1 & i!=1){ //if new mutant born
-						//printf("%d\t%d\t%d\t",i,j,k);
-						//printf("%f\t",t);
-						//printf("%f\t",comp[0][0]); // output num wt
-						//printf("%f\n",comp[1][0]);
+					if (j==0 & l==1 & i!=1 & outputmutantinfo==1){ //if new mutant born
+						printf("%d\t%d\t%d\t",i,j,k);
+						printf("%f\t",t);
+						printf("%f\t",comp[0][0]); // output num wt
+						printf("%f\n",comp[1][0]);
 					}					
 					
 					comp[l][j]+=1; //add the mutant
@@ -358,7 +361,7 @@ struct outsim one_run(){
 							}	
 						if (i==1 && j==0) {// used to count migration events of a mutant from the sanctuary j==0 is in sanctuary, i ==1 is mutant strain
 								mmt+=1;	
-								printf("%lf  ", t);  
+							if (outputmutantinfo==0) {printf("%lf  ", t); } 
 							}
 						break;
 					}
