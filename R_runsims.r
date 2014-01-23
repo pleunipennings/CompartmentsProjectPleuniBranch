@@ -4,12 +4,16 @@ system("mv main ../main")
 
 #set parameters
 R = 4
-c1 = 0.99; c2 = 0.99; s=0.05; dy=1; dx=0.1; m="1E-03";
+c1 = 0.99; c2 = 0.99; s=0.1; dy=1; dx=0.1; 
+m="2E-03";
+#m=0;
 uf1 = "1E-05"; ub1 = "1E-05"; uf2 = "0" ; ub2 = "0";
 x0 = "1E+04"; x1 = "1E+06"; x2 = 0; x3 = 0; #the number of uninfected cells in the compartments
 seed = 1
 nr = 1; #number of runs
 tcf = 10; #threshold of when to stop simulations
+numruns=4000
+migtimes=vector()
 
 #remove old output files
 if (TRUE){
@@ -28,7 +32,7 @@ WD <- getwd()
 setwd("/Users/pleunipennings/Dropbox/drug compartments project/CodePleuniBranch")
 #pdf("fig.pdf")
 
-for (seed in 1:20){
+for (seed in 1:numruns){
 	system (paste("rm ./output",seed,".txt",sep=""))
 	
 #create parameter file
@@ -52,7 +56,9 @@ for (seed in 1:20){
 	write(paste("tcf:",tcf),file=filetowrite,append=TRUE)
 	write(paste("seed:",seed),file=filetowrite,append=TRUE)
 	
-	print(system.time(system (paste("./main >> ./output",seed,".txt",sep=""))))
+#	print(system.time(system (paste("./main >> ./output",seed,".txt",sep=""))))
+	print(paste("sim",seed,"out of",numruns))
+	system (paste("./main >> ./output",seed,".txt",sep=""))
 #read output files
 #scan("tfailure.txt")->FailureTimes
 
@@ -70,7 +76,8 @@ curve(dexp(x, rate = 0.001095), add = TRUE, col = "green", lwd = 2)
 dev.off()
 }
 
-#	scan(paste("./output",seed,".txt",sep=""))->x
+	
+migtimes<-c(migtimes,scan(paste("./output",seed,".txt",sep="")))
 #	hist(x,main=seed)
 
 }	
@@ -88,15 +95,44 @@ dev.off()
 
 if (!is.null(WD)) setwd(WD)
 
+if (FALSE){
+pdf("MutSelBal.pdf")
 read.table("../output1.txt",sep="\t")->x1
 names(x1)<-c("i","j","k","t","wt","mut")
 #plot(x1$t,x1$wt,ylim=c(0,max(x1$wt)*1.2))
-plot(x1$t,x1$mut,ylim=c(0,max(c(x1$mut,x10$mut))),t="l",lwd=2)
+plot(x1$t,x1$mut,ylim=c(0,max(c(x1$mut,x1$mut))),t="l",lwd=2)
 abline(v=x1$t[which(x1$k==2)],lty=2,lwd=0.5)
 
-for (i in 2:20){
+migevents<-vector()
+for (i in 2:numruns){
 	read.table(paste("../output",i,".txt",sep=""))->x
 	names(x)<-c("i","j","k","t","wt","mut")
 	points(x$t,x$mut,col=i,t="l",lwd=2)
 	abline(v=x$t[which(x$k==2)],col=i,lty=2,lwd=0.5)
+	migevents<-c(migevents,x$t[which(x$k==2)])
 }
+	
+	dev.off()
+	s=0
+	for (i in 1:numruns){
+		read.table(paste("../output",i,".txt",sep=""))->x
+		names(x)<-c("i","j","k","t","wt","mut")
+		mean1=mean(x$mut[1:floor(length(x$mut)/2)])
+		mean2=mean(x$mut[ceiling(length(x$mut)/2):length(x$mut)])
+		print(paste(i,round(mean1,2),round(mean2,2),length(which(x$k==2))))
+		if (mean1>mean2)s=s+1
+	}
+	print(s)
+	
+}
+
+plot(sort(migtimes))
+abline(v=length(migtimes)/2)
+abline(v=length(migtimes)/4)
+abline(v=length(migtimes)*3/4)
+abline(h=c(250,500,750))
+
+for (i in 1:numruns){
+system (paste("rm ./output",i,".txt",sep=""))
+}
+

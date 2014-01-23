@@ -37,7 +37,7 @@ double mutrate[4][4]={0}; // probability of mutation from strain of type i to st
 double t; //PP I guess this is time. 
 double mmt; // counts how many migration events of a mutant from the sanctuary to the SDC have occurred 
 unsigned long int seed; //the seed
-int outputmutantinfo=1; //if 1 output info on mutants for debugging
+int outputmutantinfo=0; //if 1 output info on mutants for debugging
 
 /*Random number generation*/
 gsl_rng * r; /*global random number generator*/
@@ -280,7 +280,7 @@ struct outsim one_run(){
 	
 	/*START SIMULATION*/
 	
-	while (t<10000){ // !! PP run for fixed amount of time, in stead of until invasion. 
+	while (t<1000){ // !! PP run for fixed amount of time, in stead of until invasion. 
 	//while (comp[1][1]<tcf){ //as long as the fourth compartment has fewer individuals than tcf (the threshhold). 
 			/*
 		printf("comp\n");
