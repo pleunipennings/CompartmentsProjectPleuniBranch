@@ -38,6 +38,7 @@ double t; //PP I guess this is time.
 double mmt; // counts how many migration events of a mutant from the sanctuary to the SDC have occurred 
 unsigned long int seed; //the seed
 int outputmutantinfo=0; //if 1 output info on mutants for debugging
+int rununtilfailureOrngens=0;//if 0 run until failure if >0 run this num of generations
 
 /*Random number generation*/
 gsl_rng * r; /*global random number generator*/
@@ -56,11 +57,10 @@ int main () {
 	/*Read parameters*/
 	parameters=fopen("parameters.txt", "rt"); // "rt" = Open a text file for reading. (The file must exist.)
 
-	fscanf(parameters,"R:%f c1:%f c2:%f s:%f dy:%f dx:%f m:%f uf1:%f ub1:%f uf2:%f ub2:%f x0:%f x1:%f x2:%f x3:%f nr:%d tcf:%d seed:%lu", &R, &c1, &c2, &s, &dy, &dx, &m, &uf1, &ub1, &uf2, &ub2, &comp[4][0], &comp[4][1], &comp[4][2], &comp[4][3], &nr, &tcf, &seed);
+	fscanf(parameters,"R:%f c1:%f c2:%f s:%f dy:%f dx:%f m:%f uf1:%f ub1:%f uf2:%f ub2:%f x0:%f x1:%f x2:%f x3:%f nr:%d tcf:%d seed:%lu ruf:%d omi:%d", &R, &c1, &c2, &s, &dy, &dx, &m, &uf1, &ub1, &uf2, &ub2, &comp[4][0], &comp[4][1], &comp[4][2], &comp[4][3], &nr, &tcf, &seed, &rununtilfailureOrngens, &outputmutantinfo);
 	
 	//	gsl_rng_set(r, time(NULL)); // Use clock to set the seed of the random number generator
 	gsl_rng_set(r, seed); // Use clock to set the seed of the random number generator
-
 		
 	/*Calculate migration rates*/
 	migration_rates();
@@ -197,7 +197,8 @@ void r0_calculation(){
 		}
 	};
 	// !!! PP set R0 of strain 1 in comp 1 to 0 so that I can test mig rate
-	R0[1][1]=0.0;  
+	if (rununtilfailureOrngens>0) R0[1][1]=0.0; //to test mig rate   
+	if (rununtilfailureOrngens==0) R0[1][1]=1.081; //to test mig rate   
 	
 	/*
 	printf("r0\n");
@@ -280,8 +281,8 @@ struct outsim one_run(){
 	
 	/*START SIMULATION*/
 	
-	while (t<1000){ // !! PP run for fixed amount of time, in stead of until invasion. 
-	//while (comp[1][1]<tcf){ //as long as the fourth compartment has fewer individuals than tcf (the threshhold). 
+//	while (t<1000){ // !! PP run for fixed amount of time, in stead of until invasion. 
+	while ((comp[1][1]<tcf && rununtilfailureOrngens==0)|| t<rununtilfailureOrngens &&rununtilfailureOrngens>0){ //as long as the fourth compartment has fewer individuals than tcf (the threshhold). 
 			/*
 		printf("comp\n");
 		for (ii=0; ii<4; ii++) {
